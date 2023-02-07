@@ -14,18 +14,28 @@ function LogIn(req, res) {
     const query = conn.query('SELECT * FROM accounts WHERE username = ?', [username]);
     if (!utils.isNullOrEmpty(username, password)) {
         query.on('result', function (row) {
-            const isValıdPassword = utils.checkPassword(password, row.password)
-            isValıdPassword.then((value) => {
+            const isValidPassword = utils.checkPassword(password, row.password)
+            isValidPassword.then((value) => {
                 if (value) {
-                    const query = conn.query('SELECT * FROM sessions WHERE account_id = ?', [row.id]);
                     const user = row;
                     delete user.password;
-                    query.on('result', function (row) {
-                        res.statusCode = 200;
+                    new Date().toISOString().slice(0, 19).replace('T', ' ');
+                    const unixTimeStamp = new Date();
+                    const expireDate = (new Date(unixTimeStamp + 30 * 24 * 60 * 60)).toISOString().slice(0, 19).replace('T', ' ');
+                    const session = {
+                        account_id: user.id,
+                        expires_at: expireDate,
+                        token: uuidv4(),
+                    };
+                    conn.query("INSERT INTO sessions SET ?", session, (err, resp) => {
+                        if (err) { res.statusCode = 400; res.send(); console.log(err) }
+                        else {
+                            res.statusCode = 200;
                         res.send({
-                            session: row.token,
+                            session: session.token,
                             user: user,
                         });
+                        }
                     })
                 } else {
                     res.statusCode = 400;
@@ -80,21 +90,9 @@ async function Register(req, res) {
                             conn.query("INSERT INTO accounts SET ?", account, (err, respo) => {
                                 if (err) { res.statusCode = 400; res.send(); }
                                 else {
-                                    new Date().toISOString().slice(0, 19).replace('T', ' ');
-                                    const unixTimeStamp = new Date();
-                                    const expireDate = (new Date(unixTimeStamp + 30 * 24 * 60 * 60)).toISOString().slice(0, 19).replace('T', ' ');
-                                    const session = {
-                                        account_id: respo.insertId,
-                                        expires_at: expireDate,
-                                        token: uuidv4(),
-                                    };
-                                    conn.query("INSERT INTO sessions SET ?", session, (err, resp) => {
-                                        if (err) { res.statusCode = 400; res.send(); console.log(err) }
-                                        else {
-                                            res.statusCode = 200;
-                                            res.send("Successfully registered");
-                                        }
-                                    })
+                                    res.statusCode = 200;
+                                    res.send("Successfully registered");
+
                                 }
                             });
 
