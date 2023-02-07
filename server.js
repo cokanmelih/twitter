@@ -1,6 +1,5 @@
 import express from 'express';
 import tweet from "./db/v1/tweet.js";
-import account from "./db/v1/account.js";
 import auth from "./db/v1/auth.js";
 
 
@@ -11,25 +10,12 @@ app.get('/', (req, res) => {
     res.send("Welcome To Server")
 });
 
-app.post('/tweet/send', tweet.SendTweet);
-app.post('/account/new', account.CreateAccount);
+app.post('/auth/register', auth.Register);
 app.post('/auth/login', auth.LogIn);
-// app.post('/login', (req, res) => {
-//     let username = req.body.username;
-//     let password = req.body.password;
-//     if (username != null & password != null || username != "" & password != "") {
-//         if (username === 'admin' && password === 'admin') {
-//             res.send('Login successful');
-//         }
-//         else {
-//             res.statusCode = 400;
-//             res.send('Login failed');
-//         }
-//     } else {
-//         res.statusCode = 400;
-//         res.send('Necessary Parameters Not Given');
-//     }
-// })
+app.post('/tweet/new', tweet.SendTweet);
+
+
+
 app.listen(port, () => {
     console.log(`Server running on port : ${port}!`);
 })
