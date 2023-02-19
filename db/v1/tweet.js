@@ -46,7 +46,7 @@ var conn = mysql.createConnection({
 });
 function Send(req, res) {
     var session = req.query.session;
-    var tweetBody = req.query.tweetBody;
+    var tweetBody = req.query.tweet_body;
     if (tweetBody != null) {
         conn.query('SELECT * FROM sessions WHERE token = ?', [session], function (err, row) {
             if (err)
@@ -63,18 +63,21 @@ function Send(req, res) {
                     if (resp) {
                         res.statusCode = 200;
                         res.send(tweet_1);
+                        console.log("success: /tweet/send request received");
                     }
                 });
             }
             else {
                 res.statusCode = 400;
                 res.send("Invalid Session");
+                console.log("failed: /tweet/send request received");
             }
         });
     }
     else {
         res.statusCode = 400;
         res.send('Necessary Parameters Not Given');
+        console.log("failed: /tweet/send request received");
     }
 }
 function Delete(req, res) {
@@ -146,7 +149,7 @@ function Get(req, res) {
 function Like(req, res) {
     var success = true;
     var session = req.query.session;
-    var tweetId = req.query.tweetId;
+    var tweetId = req.query.tweet_id;
     if (!utils_1["default"].isNullOrEmpty(session, tweetId)) {
         conn.query('SELECT * FROM sessions WHERE token = ?', [session], function (err, row) {
             if (err)
@@ -199,4 +202,60 @@ function Like(req, res) {
         res.send('Necessary Parameters Not Given');
     }
 }
-exports["default"] = { Send: Send, Like: Like, Get: Get, Delete: Delete };
+function Retweet(req, res) {
+    var success = true;
+    var session = req.query.session;
+    var retweet_id = req.query.retweet_id;
+    if (!utils_1["default"].isNullOrEmpty(session, retweet_id)) {
+        conn.query('SELECT * FROM sessions WHERE token = ?', [session], function (err, row) {
+            if (err)
+                console.log(err);
+            if (row && row.length) {
+                var like_2 = {
+                    tweet_id: retweet_id,
+                    account_id: row[0].account_id
+                };
+                conn.query('SELECT * FROM tweet_retweets WHERE retweet_id = ?', [retweet_id], function (err, row1) {
+                    return __awaiter(this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, row1.forEach(function (value) {
+                                        if (value.account_id == row[0].account_id) {
+                                            success = false;
+                                        }
+                                    })];
+                                case 1:
+                                    _a.sent();
+                                    if (success === true) {
+                                        conn.query('INSERT INTO tweet_retweets SET ?', like_2, function (err, resp) {
+                                            if (err)
+                                                console.log(err);
+                                            if (resp) {
+                                                res.statusCode = 200;
+                                                res.send(like_2);
+                                                return;
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        res.statusCode = 400;
+                                        res.send("You have already retweeted that tweet");
+                                    }
+                                    return [2 /*return*/];
+                            }
+                        });
+                    });
+                });
+            }
+            else {
+                res.statusCode = 400;
+                res.send("Invalid Session");
+            }
+        });
+    }
+    else {
+        res.statusCode = 400;
+        res.send('Necessary Parameters Not Given');
+    }
+}
+exports["default"] = { Send: Send, Like: Like, Get: Get, Delete: Delete, Retweet: Retweet };

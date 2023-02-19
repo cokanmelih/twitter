@@ -76,12 +76,14 @@ function LogIn(req, res) {
                                 session: session_1.token,
                                 user: user_1
                             });
+                            console.log("success: /auth/login request received");
                         }
                     });
                 }
                 else {
                     res.statusCode = 400;
                     res.send("Invalid username or password");
+                    console.log("failed: /auth/login request received");
                 }
             });
         });
@@ -89,6 +91,7 @@ function LogIn(req, res) {
     else {
         res.statusCode = 400;
         res.send("Necessary parameters not given");
+        console.log("failed: /auth/register request received");
     }
 }
 function Register(req, res) {
@@ -145,6 +148,7 @@ function Register(req, res) {
                                             else {
                                                 res.statusCode = 200;
                                                 res.send("Successfully registered");
+                                                console.log("success: /auth/register request received");
                                             }
                                         });
                                     }
@@ -157,6 +161,7 @@ function Register(req, res) {
                 case 3:
                     res.statusCode = 400;
                     res.send('Necessary Parameters Not Given');
+                    console.log("failed: /auth/register request received");
                     _a.label = 4;
                 case 4:
                     ;

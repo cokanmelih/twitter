@@ -10,14 +10,20 @@ app.get('/', (req:any, res:any) => {
     res.send("Welcome To Server")
 });
 
+// Doesn't require token
+
 app.post('/auth/register', auth.Register);
 app.post('/auth/login', auth.LogIn);
+
+// Requires token
+
 app.post('/tweet', tweet.Send);
 app.post('/like', tweet.Like);
+app.post('/retweet', tweet.Retweet);
 app.get('/tweet', tweet.Get);
 app.delete('/tweet', tweet.Delete);
 
 
 app.listen(port, () => {
-    console.log(`Server running on port : ${port}!`);
+    console.log(`success: Server running on port : ${port}!`);
 })
