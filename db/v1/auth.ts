@@ -1,115 +1,68 @@
-import * as mysql from "mysql";
-import  utils from "../../utils/utils"
-import { v4 as uuidv4 } from 'uuid';
+import { v4 } from 'uuid';
 
-function LogIn(req:any, res:any) {
-    const conn = mysql.createConnection({
-        host: process.env.HOST_NAME || "localhost",
-        user: "root",
-        password: "",
-        database: "twitter",
-    });
-    const username = req.query.username;
-    const password = req.query.password
-    const query = conn.query('SELECT * FROM accounts WHERE username = ?', [username]);
-    if (!utils.isNullOrEmpty(username, password)) {
-        query.on('result', function (row) {
-            const isValidPassword = utils.checkPassword(password, row.password)
-            isValidPassword.then((value:any) => {
-                if (value) {
-                    const user = row;
-                    delete user.password;
-                    new Date().toISOString().slice(0, 19).replace('T', ' ');
-                    const unixTimeStamp = Date.now();
-                    const expireDate = (new Date(unixTimeStamp + 30 * 24 * 60 * 60)).toISOString().slice(0, 19).replace('T', ' ');
-                    const session = {
-                        account_id: user.id,
-                        expires_at: expireDate,
-                        token: uuidv4(),
-                    };
-                    conn.query("INSERT INTO sessions SET ?", session, (err, resp) => {
-                        if (err) { res.statusCode = 400; res.send(); console.log(err) }
-                        else {
-                            res.statusCode = 200;
-                        res.send({
-                            session: session.token,
-                            user: user,
-                        });
-                        console.log("success: /auth/login request received");
-                        }
+import utils from "../../utils/utils.js";
+import * as db from "../db.js";
+
+async function Login(username: string, password: string) {
+    return new Promise(function (resolve, reject) {
+        db.Login(username, password)
+            .then((resp: any) => {
+                const user = resp;
+                const session = {
+                    account_id: user.id,
+                    expires_at: utils.createExpireDate(),
+                    token: v4(),
+                };
+                db.InsertSession(session)
+                    .then((resp: any) => {
+                        user.session = session.token;
+                        resolve(new utils.Response(user, "Success"));
+                        return;
+                    }).catch((err) => {
+                        reject(new utils.Response(err, "Failed"));
+                        return;
                     })
-                } else {
-                    res.statusCode = 400;
-                    res.send("Invalid username or password");
-                    console.log("failed: /auth/login request received");
-                }
             })
-        })
-    } else {
-        res.statusCode = 400;
-        res.send("Necessary parameters not given");
-        console.log("failed: /auth/register request received");
-    }
-}
+            .catch((err) => {
+                reject(new utils.Response(err, "Failed"));
+                return;
+            });
+    })
+};
 
-async function Register(req:any, res:any) {
-    const conn = mysql.createConnection({
-        host: process.env.HOST_NAME || "localhost",
-        user: "root",
-        password: "",
-        database: "twitter",
-    });
-    const username = req.query.username;
-    const mail = req.query.mail;
-    const phone = req.query.phone;
-    let password = req.query.password;
-
-    if (!utils.isNullOrEmpty(username, password, mail, phone)) {
-        password = await utils.encryptPassword(password);
-
+async function Register(user: any) {
+    return new Promise(async function (resolve, reject) {
+        user.password = await utils.encryptPassword(user.password);
         const account = {
-            "username": username,
-            "password": password,
-            "mail": mail,
-            "phone": phone,
-            "mail_approved": 0,
-            "phone_approved": 0,
+            username: user.username,
+            mail: user.mail,
+            password: user.password,
+            phone: user.phone,
+            mail_approved: 0,
+            phone_approved: 0,
         };
-        await conn.query(
-            "SELECT * FROM accounts WHERE username = ?",
-            username,
-            (err:any, resp:any) => {
-                if (err) res.statusCode = 400; res.send;
-                if (resp.length) {
-                    res.statusCode = 400;
-                    res.send("User already exist");
-                } else {
-                    conn.query("SELECT * from accounts WHERE mail = ?", mail, (err, resp) => {
-                        if (err) res.statusCode = 400; res.send;
-                        if (resp.length) {
-                            res.statusCode = 400;
-                            res.send("Mail already exist");
-                        } else {
-                            conn.query("INSERT INTO accounts SET ?", account, (err, respo) => {
-                                if (err) { res.statusCode = 400; res.send(); }
-                                else {
-                                    res.statusCode = 200;
-                                    res.send("Successfully registered");
-                                    console.log("success: /auth/register request received");
-                                }
-                            });
+        db.GetUser(user.username, user.phone, user.mail,)
+            .then((resp) => {
+                db.InsertAccount(account)
+                    .then((value) => {
+                        const session = {
+                            account_id: user.id,
+                            expires_at: utils.createExpireDate(),
+                            token: v4(),
+                        };
+                        delete account.password;
+                        user.session = session.token
+                        reject(new utils.Response(account, "Succesfully Registered"));
+                    })
+                    .catch((err) => {
+                        reject(new utils.Response(err, "Failed"));
 
-                        }
                     });
-                }
-            }
-        )
-    }
-    else {
-        res.statusCode = 400;
-        res.send('Necessary Parameters Not Given');
-        console.log("failed: /auth/register request received");
-    };
+            })
+            .catch((err) => {
+                reject(new utils.Response(err, "Failed"));
+            });
+    })
 }
 
-export default { LogIn, Register };
+export default { Login, Register };

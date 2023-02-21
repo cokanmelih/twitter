@@ -1,14 +1,10 @@
-import mysql from "mysql";
-import utils from "../../utils/utils.js";
-import * as db from "../db.js"
-
+import * as db from "../db.js";
 // const conn = mysql.createConnection({
 //     host: process.env.HOST_NAME || "localhost",
 //     user: "root",
 //     password: "",
 //     database: "twitter",
 // });
-
 // function Send(req: any, res: any) {
 //     const session = req.query.session;
 //     const tweetBody = req.query.tweet_body
@@ -34,7 +30,6 @@ import * as db from "../db.js"
 //                 res.statusCode = 400;
 //                 res.send("Invalid Session");
 //                 console.log("failed: /tweet/send request received");
-
 //             }
 //         });
 //     }
@@ -44,33 +39,31 @@ import * as db from "../db.js"
 //         console.log("failed: /tweet/send request received");
 //     }
 // }
-
-export function Delete(session: any, tweetId: any) {
+export function Delete(session, tweetId) {
     return new Promise((resolve, reject) => {
         db.DeleteTweet(session, tweetId)
-            .then((resp)=>{
-                resolve(resp);
-                return;
-            })
-            .catch((err)=>{
-                reject(err);
-                return;
-            })
-    })
+            .then((resp) => {
+            resolve(resp);
+            return;
+        })
+            .catch((err) => {
+            reject(err);
+            return;
+        });
+    });
 }
-
-export function Get(session: any) {
+export function Get(session) {
     return new Promise((resolve, reject) => {
         db.GetTweet(session)
-            .then((resp: any) => {
-                resolve(resp);
-                return;
-            })
+            .then((resp) => {
+            resolve(resp);
+            return;
+        })
             .catch((err) => {
-                reject(err);
-                return;
-            });
-    })
+            reject(err);
+            return;
+        });
+    });
 }
 // function Like(req: any, res: any) {
 //     let success = true;
@@ -104,7 +97,6 @@ export function Get(session: any) {
 //                         res.send("You have already liked that tweet");
 //                     }
 //                 })
-
 //             }
 //             else {
 //                 res.statusCode = 400;
@@ -116,7 +108,6 @@ export function Get(session: any) {
 //         res.send('Necessary Parameters Not Given');
 //     }
 // }
-
 // function Retweet(req: any, res: any) {
 //     let success = true;
 //     const session = req.query.session;
@@ -149,7 +140,6 @@ export function Get(session: any) {
 //                         res.send("You have already retweeted}} that tweet");
 //                     }
 //                 })
-
 //             }
 //             else {
 //                 res.statusCode = 400;

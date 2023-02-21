@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "outDir": "src/",
+    "outDir": "src",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
