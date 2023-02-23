@@ -1,0 +1,22 @@
+{
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "express": "^4.18.2",
+    "mysql": "^2.18.1",
+    "save-dev": "^0.0.1-security",
+    "uuid": "^9.0.0"
+  },
+  "scripts": {
+    "start": "tsc && node ./src/server.js"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/express": "^4.17.17",
+    "@types/mysql": "^2.15.21",
+    "@types/uuid": "^9.0.0",
+    "expess": "^0.0.1-security",
+    "util": "^0.12.5"
+  }
+}
