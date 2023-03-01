@@ -124,6 +124,25 @@ export function DeleteTweet(tweetId) {
         });
     });
 }
+export function DeleteRetweet(tweetId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            Connection().query('DELETE FROM `tweet_retweets` WHERE id = ?', [tweetId], function (err, result) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    console.log(result);
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    if (result.affectedRows > 0)
+                        resolve("success");
+                    else
+                        reject("Retweet not found");
+                });
+            });
+        });
+    });
+}
 export function GetTweets(authorId) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {

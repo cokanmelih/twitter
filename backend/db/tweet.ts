@@ -77,6 +77,17 @@ export async function DeleteTweet(tweetId: number) {
     })
 }
 
+export async function DeleteRetweet(tweetId: number) {
+    return new Promise((resolve, reject) => {
+        Connection().query('DELETE FROM `tweet_retweets` WHERE id = ?', [tweetId], async function (err: any, result: any) {
+            console.log(result);
+            if (err) { reject(err); return; }
+            if (result.affectedRows > 0) resolve("success")
+            else reject("Retweet not found")
+        });
+    })
+}
+
 export async function GetTweets(authorId: number) {
     return new Promise((resolve, reject) => {
         Connection().query('SELECT * FROM tweets where author_id = ?', authorId, function (err: any, tweets: any) {

@@ -82,3 +82,16 @@ export function Delete(session, tweetId) {
         });
     });
 }
+export function UndoRetweet(session, tweetId, retweetId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            GetIdFromSession(session)
+                .then((accountId) => {
+                db.DeleteRetweet(retweetId)
+                    .then((val) => resolve("Success"))
+                    .catch((err) => reject(err));
+            })
+                .catch((err) => reject(err));
+        });
+    });
+}

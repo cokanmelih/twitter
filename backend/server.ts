@@ -1,4 +1,4 @@
-import  * as tweet from "./handler/tweet.js";
+import * as tweet from "./handler/tweet.js";
 import * as user from "./handler/user.js"
 import express from "express";
 
@@ -6,7 +6,7 @@ import express from "express";
 const app = express();
 const port = process.env.PORT || 8888;
 
-app.get('/', (req:any, res:any) => {
+app.get('/', (req: any, res: any) => {
     res.send("Welcome To Server")
 });
 
@@ -20,11 +20,12 @@ app.post('/auth/login', user.Login);
 app.post('/tweet', tweet.Send);
 app.post('/tweet/like', tweet.Like);
 app.post('/tweet/retweet', tweet.Retweet);
+app.post('/tweet/retweet/undo', tweet.UndoRetweet)
 app.get('/tweet', tweet.Get);
 app.delete('/tweet', tweet.Delete);
 
 //** TODO  */
-// delete likes of tweet when delete
+// data is null on retweet / success
 // undo retweet and like
 // create db if not exist
 

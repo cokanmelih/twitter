@@ -67,3 +67,15 @@ export async function Delete(session: any, tweetId: any) {
             .catch((err) => reject(err))
     })
 }
+
+export async function UndoRetweet(session: any, tweetId: any, retweetId: any) {
+    return new Promise((resolve, reject) => {
+        GetIdFromSession(session)
+            .then((accountId) => {
+                db.DeleteRetweet(retweetId)
+                    .then((val) => resolve("Success"))
+                    .catch((err) => reject(err));
+            })
+            .catch((err) => reject(err))
+    })
+}
