@@ -107,12 +107,18 @@ export function DeleteTweet(tweetId) {
                         reject(err);
                         return;
                     }
-                    if (result.affectedRows > 0) {
-                        resolve("success");
-                    }
-                    else {
-                        reject("Tweet not found");
-                    }
+                    Connection().query('DELETE FROM `tweet_likes` WHERE tweet_id = ?', tweetId, function (error, fields) {
+                        return __awaiter(this, void 0, void 0, function* () {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+                            if (result.affectedRows > 0)
+                                resolve("success");
+                            else
+                                reject("Tweet not found");
+                        });
+                    });
                 });
             });
         });

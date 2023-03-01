@@ -101,7 +101,7 @@ export function Delete(req, res) {
             res.send(new utils.Response(null, "Necessary parameters not given"));
             return;
         }
-        Delete(session, tweetId)
+        tweet.Delete(session, tweetId)
             .then((value) => {
             res.statusCode = 200;
             res.send(new utils.Response(value, "Success"));

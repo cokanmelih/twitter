@@ -53,7 +53,7 @@ export async function CheckLike(accountId: any, tweetId: AnalyserNode) {
         Connection().query("SELECT * FROM tweet_likes WHERE tweet_id = ? AND account_id = ?", [tweetId, accountId], (err, likes) => {
             Connection().query('SELECT * from tweets where id = ?', [tweetId], (err, tweets) => {
                 if (err) reject(err)
-                if(tweets.length){
+                if (tweets.length) {
                     if (!likes.length) resolve("Success");
                     else reject("You already have liked that tweet");
                 }
@@ -68,8 +68,11 @@ export async function DeleteTweet(tweetId: number) {
         Connection().query('DELETE FROM `tweets` WHERE id = ?', [tweetId], async function (err: any, result: any) {
             console.log(result);
             if (err) { reject(err); return; }
-            if (result.affectedRows > 0) { resolve("success"); }
-            else { reject("Tweet not found"); }
+            Connection().query('DELETE FROM `tweet_likes` WHERE tweet_id = ?', tweetId, async function (error: any, fields: any) {
+                if (err) { reject(err); return; }
+                if (result.affectedRows > 0) resolve("success")
+                else reject("Tweet not found")
+            })
         });
     })
 }
