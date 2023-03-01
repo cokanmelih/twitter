@@ -1,4 +1,4 @@
-import auth from "../service/v1/auth.js"
+import * as auth from "../service/v1/auth.js"
 import utils from "../utils/utils.js";
 
 export async function Login(req: any, res: any) {

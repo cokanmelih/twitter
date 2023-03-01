@@ -10,7 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { v4 } from 'uuid';
 import utils from "../../utils/utils.js";
 import * as user from "../../db/user.js";
-function Login(username, password) {
+import { GetUserByUsernameAndMail, InsertAccount, InsertSession } from '../../db/user.js';
+export function Login(username, password) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise(function (resolve, reject) {
             user.GetAccount(username, password)
@@ -21,25 +22,18 @@ function Login(username, password) {
                     expires_at: utils.createExpireDate(),
                     token: v4(),
                 };
-                user.InsertSession(session)
+                InsertSession(session)
                     .then((resp) => {
                     user.session = session.token;
                     resolve(new utils.Response(user, "Success"));
-                    return;
-                }).catch((err) => {
-                    reject(new utils.Response(err, "Failed"));
-                    return;
-                });
+                }).catch((err) => reject(new utils.Response(err, "Failed")));
             })
-                .catch((err) => {
-                reject(new utils.Response(err, "Failed"));
-                return;
-            });
+                .catch((err) => reject(new utils.Response(err, "Failed")));
         });
     });
 }
 ;
-function Register(user) {
+export function Register(user) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise(function (resolve, reject) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -52,9 +46,9 @@ function Register(user) {
                     mail_approved: 0,
                     phone_approved: 0,
                 };
-                user.GetUserByUsernameAndMail(user.username, user.phone, user.mail)
+                GetUserByUsernameAndMail(user.username, user.phone, user.mail)
                     .then((resp) => {
-                    user.InsertAccount(account)
+                    InsertAccount(account)
                         .then((value) => {
                         const session = {
                             account_id: user.id,
@@ -76,4 +70,3 @@ function Register(user) {
         });
     });
 }
-export default { Login, Register };

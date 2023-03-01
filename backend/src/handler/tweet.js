@@ -45,7 +45,6 @@ export function Retweet(req, res) {
         })
             .catch((err) => {
             res.statusCode = 401;
-            console.log(err);
             res.send(new utils.Response(null, err));
         });
     });
@@ -102,7 +101,7 @@ export function Delete(req, res) {
             res.send(new utils.Response(null, "Necessary parameters not given"));
             return;
         }
-        tweet.Delete(session, tweetId)
+        Delete(session, tweetId)
             .then((value) => {
             res.statusCode = 200;
             res.send(new utils.Response(value, "Success"));

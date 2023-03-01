@@ -1,5 +1,4 @@
 import { GetIdFromSession, GetSession } from "../db/user.js";
-import * as db from "../db/tweet.js";
 import { Connection } from "./db.js";
 
 export async function InsertRetweet(tweetId: any, accountId: any) {
@@ -43,7 +42,7 @@ export async function CheckRetweet(accountId: number, tweetId: number) {
                     if (!retweets.length) { resolve("success"); }
                     else { reject("You have already retweeted that tweet"); }
                 }
-                else { reject("Success"); return; }
+                else { reject("Tweet does not exist"); return; }
             })
         })
     })
@@ -52,9 +51,14 @@ export async function CheckRetweet(accountId: number, tweetId: number) {
 export async function CheckLike(accountId: any, tweetId: AnalyserNode) {
     return new Promise((resolve, reject) => {
         Connection().query("SELECT * FROM tweet_likes WHERE tweet_id = ? AND account_id = ?", [tweetId, accountId], (err, likes) => {
-            if (err) { reject(err); return; }
-            if (!likes.length) { resolve("This tweet have not liked"); }
-            else { reject("You already have liked that tweet"); }
+            Connection().query('SELECT * from tweets where id = ?', [tweetId], (err, tweets) => {
+                if (err) reject(err)
+                if(tweets.length){
+                    if (!likes.length) resolve("Success");
+                    else reject("You already have liked that tweet");
+                }
+                reject("Tweet does not exist");
+            })
         })
     })
 }
@@ -62,8 +66,9 @@ export async function CheckLike(accountId: any, tweetId: AnalyserNode) {
 export async function DeleteTweet(tweetId: number) {
     return new Promise((resolve, reject) => {
         Connection().query('DELETE FROM `tweets` WHERE id = ?', [tweetId], async function (err: any, result: any) {
+            console.log(result);
             if (err) { reject(err); return; }
-            if (result.length) { resolve("success"); }
+            if (result.affectedRows > 0) { resolve("success"); }
             else { reject("Tweet not found"); }
         });
     })
@@ -76,74 +81,5 @@ export async function GetTweets(authorId: number) {
             if (!tweets.length) { reject("No tweets have found"); }
             else { resolve(tweets); }
         })
-    })
-}
-
-export async function Like(session: any, tweetId: any) {
-    return new Promise((resolve, reject) => {
-        GetIdFromSession(session)
-            .then((accountId) => {
-                db.CheckLike(accountId, tweetId)
-                    .then((value) => {
-                        db.InsertLike(tweetId, accountId)
-                            .then((value) => resolve(value))
-                            .catch((err) => reject(err))
-                    })
-                    .catch((err) => reject(err))
-            }).catch((err) => reject(err))
-    })
-}
-
-export async function Send(session: any, tweet: any) {
-    return new Promise((resolve, reject) => {
-        GetIdFromSession(session)
-            .then((value) => {
-                tweet.author_id = value;
-                db.InsertTweet(tweet)
-                    .then((value) => resolve(value))
-                    .catch((err) => reject(err))
-            })
-            .catch((err) => resolve(err))
-    })
-}
-
-export async function Get(session: any) {
-    return new Promise((resolve, reject) => {
-        GetIdFromSession(session)
-            .then((authorId) => {
-                db.GetTweets(authorId)
-                    .then((tweets) => resolve(tweets))
-                    .catch((err) => reject(err))
-            })
-            .catch((err) => reject(err));
-    })
-}
-
-export async function Retweet(session: any, tweetId: any) {
-    return new Promise((resolve, reject) => {
-        GetIdFromSession(session)
-            .then((accountId) => {
-                CheckRetweet(accountId, tweetId)
-                    .then(async (value) => {
-
-                        db.InsertRetweet(tweetId, accountId)
-                            .then((value) => resolve("Success"))
-                            .catch((err) => reject(err))
-                    })
-                    .catch((err) => reject(err));
-            })
-            .catch((err) => reject(err))
-    })
-}
-
-export async function Delete(session: any, tweetId: any) {
-    return new Promise((resolve, reject) => {
-        GetSession(session)
-            .then((value) => {
-                db.DeleteTweet(tweetId)
-                    .then((value) => resolve(value))
-                    .catch((err) => reject(err))
-            })
-            .catch((err) => reject(err))
     })
 }

@@ -1,10 +1,10 @@
 import { v4 } from 'uuid';
 
 import utils from "../../utils/utils.js";
-import * as tweet from "../../db/tweet.js";
 import * as user from "../../db/user.js";
+import { GetUserByUsernameAndMail, InsertAccount, InsertSession } from '../../db/user.js';
 
-async function Login(username: string, password: string) {
+export async function Login(username: string, password: string) {
     return new Promise(function (resolve, reject) {
         user.GetAccount(username, password)
             .then((resp: any) => {
@@ -14,24 +14,17 @@ async function Login(username: string, password: string) {
                     expires_at: utils.createExpireDate(),
                     token: v4(),
                 };
-                user.InsertSession(session)
+                InsertSession(session)
                     .then((resp: any) => {
                         user.session = session.token;
                         resolve(new utils.Response(user, "Success"));
-                        return;
-                    }).catch((err: any) => {
-                        reject(new utils.Response(err, "Failed"));
-                        return;
-                    })
-            })
-            .catch((err) => {
-                reject(new utils.Response(err, "Failed"));
-                return;
-            });
+                    }).catch((err: any) => reject(new utils.Response(err, "Failed")))
     })
+        .catch((err) => reject(new utils.Response(err, "Failed")));
+})
 };
 
-async function Register(user: any) {
+export async function Register(user: any) {
     return new Promise(async function (resolve, reject) {
         user.password = await utils.encryptPassword(user.password);
         const account = {
@@ -42,9 +35,9 @@ async function Register(user: any) {
             mail_approved: 0,
             phone_approved: 0,
         };
-        user.GetUserByUsernameAndMail(user.username, user.phone, user.mail,)
+        GetUserByUsernameAndMail(user.username, user.phone, user.mail,)
             .then((resp: any) => {
-                user.InsertAccount(account)
+                InsertAccount(account)
                     .then((value: any) => {
                         const session = {
                             account_id: user.id,
@@ -57,7 +50,6 @@ async function Register(user: any) {
                     })
                     .catch((err: any) => {
                         reject(new utils.Response(err, "Failed"));
-
                     });
             })
             .catch((err: any) => {
@@ -65,5 +57,3 @@ async function Register(user: any) {
             });
     })
 }
-
-export default { Login, Register };
