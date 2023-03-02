@@ -109,14 +109,18 @@ export function DeleteTweet(tweetId) {
                     }
                     Connection().query('DELETE FROM `tweet_likes` WHERE tweet_id = ?', tweetId, function (error, fields) {
                         return __awaiter(this, void 0, void 0, function* () {
-                            if (err) {
-                                reject(err);
-                                return;
-                            }
-                            if (result.affectedRows > 0)
-                                resolve("success");
-                            else
-                                reject("Tweet not found");
+                            Connection().query('DELETE FROM `tweet_retweets` WHERE tweet_id = ?', tweetId, function (error, fields) {
+                                return __awaiter(this, void 0, void 0, function* () {
+                                    if (err) {
+                                        reject(err);
+                                        return;
+                                    }
+                                    if (result.affectedRows > 0)
+                                        resolve("success");
+                                    else
+                                        reject("Tweet not found");
+                                });
+                            });
                         });
                     });
                 });
@@ -124,10 +128,10 @@ export function DeleteTweet(tweetId) {
         });
     });
 }
-export function DeleteRetweet(tweetId) {
+export function DeleteRetweet(retweetId) {
     return __awaiter(this, void 0, void 0, function* () {
         return new Promise((resolve, reject) => {
-            Connection().query('DELETE FROM `tweet_retweets` WHERE id = ?', [tweetId], function (err, result) {
+            Connection().query('DELETE FROM `tweet_retweets` WHERE id = ?', [retweetId], function (err, result) {
                 return __awaiter(this, void 0, void 0, function* () {
                     console.log(result);
                     if (err) {
@@ -138,6 +142,25 @@ export function DeleteRetweet(tweetId) {
                         resolve("success");
                     else
                         reject("Retweet not found");
+                });
+            });
+        });
+    });
+}
+export function DeleteLike(likeId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return new Promise((resolve, reject) => {
+            Connection().query('DELETE FROM `tweet_likes` WHERE id = ?', [likeId], function (err, result) {
+                return __awaiter(this, void 0, void 0, function* () {
+                    console.log(result);
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    if (result.affectedRows > 0)
+                        resolve("success");
+                    else
+                        reject("Like not found");
                 });
             });
         });

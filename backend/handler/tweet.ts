@@ -111,15 +111,34 @@ export async function Delete(req: any, res: any) {
 
 export async function UndoRetweet(req: any, res: any) {
     const session = req.query.session;
-    const tweetId = req.query.tweet_id;
     const retweetId = req.query.retweet_id;
 
-    if (utils.isNullOrEmpty(session, tweetId, retweetId)) {
+    if (utils.isNullOrEmpty(session, retweetId)) {
         res.statusCode = 400;
         res.send(new utils.Response(null, "Necessary parameters not given"))
     }
 
-    tweet.UndoRetweet(session, tweetId, retweetId)
+    tweet.UndoRetweet(session, retweetId)
+        .then((value) => {
+            res.statusCode = 200;
+            res.send(new utils.Response(value, "Success"))
+        })
+        .catch((err) => {
+            res.statusCode = 400;
+            res.send(new utils.Response(null, err))
+        })
+}
+
+export async function UndoLike(req: any, res: any) {
+    const session = req.query.session;
+    const likeId = req.query.like_id;
+
+    if (utils.isNullOrEmpty(session, likeId)) {
+        res.statusCode = 400;
+        res.send(new utils.Response(null, "Necessary parameters not given"))
+    }
+
+    tweet.UndoLike(session, likeId)
         .then((value) => {
             res.statusCode = 200;
             res.send(new utils.Response(value, "Success"))

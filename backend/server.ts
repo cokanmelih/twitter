@@ -21,12 +21,11 @@ app.post('/tweet', tweet.Send);
 app.post('/tweet/like', tweet.Like);
 app.post('/tweet/retweet', tweet.Retweet);
 app.post('/tweet/retweet/undo', tweet.UndoRetweet)
+app.post('/tweet/like/undo', tweet.UndoLike)
 app.get('/tweet', tweet.Get);
 app.delete('/tweet', tweet.Delete);
 
 //** TODO  */
-// data is null on retweet / success
-// undo retweet and like
 // create db if not exist
 
 app.listen(port, () => {

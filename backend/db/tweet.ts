@@ -69,21 +69,34 @@ export async function DeleteTweet(tweetId: number) {
             console.log(result);
             if (err) { reject(err); return; }
             Connection().query('DELETE FROM `tweet_likes` WHERE tweet_id = ?', tweetId, async function (error: any, fields: any) {
-                if (err) { reject(err); return; }
-                if (result.affectedRows > 0) resolve("success")
-                else reject("Tweet not found")
+                Connection().query('DELETE FROM `tweet_retweets` WHERE tweet_id = ?', tweetId, async function (error: any, fields: any) {
+                    if (err) { reject(err); return; }
+                    if (result.affectedRows > 0) resolve("success")
+                    else reject("Tweet not found")
+                })
             })
         });
     })
 }
 
-export async function DeleteRetweet(tweetId: number) {
+export async function DeleteRetweet(retweetId: number) {
     return new Promise((resolve, reject) => {
-        Connection().query('DELETE FROM `tweet_retweets` WHERE id = ?', [tweetId], async function (err: any, result: any) {
+        Connection().query('DELETE FROM `tweet_retweets` WHERE id = ?', [retweetId], async function (err: any, result: any) {
             console.log(result);
             if (err) { reject(err); return; }
             if (result.affectedRows > 0) resolve("success")
             else reject("Retweet not found")
+        });
+    })
+}
+
+export async function DeleteLike(likeId: number) {
+    return new Promise((resolve, reject) => {
+        Connection().query('DELETE FROM `tweet_likes` WHERE id = ?', [likeId], async function (err: any, result: any) {
+            console.log(result);
+            if (err) { reject(err); return; }
+            if (result.affectedRows > 0) resolve("success")
+            else reject("Like not found")
         });
     })
 }
